@@ -1,2 +1,8 @@
-﻿  Reversalator C++.cpp
+﻿  ReverseMP3.cpp
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(19,2): warning C4838:  la conversión de 'int' en 'const unsigned char' requiere una conversión de restricción
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(21,1): warning C4305:  'inicializando': truncamiento de 'int' a 'const unsigned char'
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(19,2): warning C4309:  'inicializando': truncamiento de valor constante
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(20,2): warning C4838:  la conversión de 'int' en 'const unsigned char' requiere una conversión de restricción
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(20,2): warning C4309:  'inicializando': truncamiento de valor constante
+C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Reversalator C++\ReverseMP3.cpp(36,33): warning C4244:  '=': conversión de 'std::streamoff' a 'unsigned int'; posible pérdida de datos
   Reversalator C++.vcxproj -> C:\Users\( USERNAME )\Documents\GitHub\Reversalator C++\Debug\Reversalator C++.exe
