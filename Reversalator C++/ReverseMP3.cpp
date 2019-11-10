@@ -3,7 +3,7 @@
 #include <iostream>
 #include "ReverseMP3.h"
 using namespace std;
-const unsigned char bitRates[] = {
+const unsigned short bitRates[] = {
 	32,
 	40,
 	48,
@@ -26,7 +26,7 @@ const unsigned short sampleRates[] = {
 };
 
 unsigned firstFrame;
-unsigned START, END;
+streampos START, END;
 ifstream IFSTREAM;
 ofstream OFSTREAM;
 
@@ -38,11 +38,17 @@ void initVariables(string ifN, string ofN) {
 	firstFrame = 0;
 }
 
-void pipe(size_t size) {
+void pipe(size_t size, void process(char *, size_t) = NULL) {
 	char *b = (char *)malloc(size);
 	IFSTREAM.read(b, size);
+	if (process != NULL)
+		process(b, size);
 	OFSTREAM.write(b, size);
 	free(b);
+}
+
+void processFrame(char *data, size_t size) {
+
 }
 
 void processID3() {
@@ -55,7 +61,7 @@ void processID3() {
 			(a1[7] << 14) +
 			(a1[8] << 7) +
 			a1[9] + 10;
-		pipe(START);
+		pipe((size_t)START);
 	}
 	free(a1);
 
@@ -72,13 +78,10 @@ void processID3() {
 	IFSTREAM.seekg(START);
 }
 
-void reverseMP3(string ifN, string ofN) {
-	initVariables(ifN, ofN);
-	processID3();
-
-	//Now time for the samplezzz!!!
-	unsigned frame = 0, rem = END;
+void iterateFrames() {
 	char data[1441];
+	streampos rem = END;
+	unsigned int frame = 0;
 	unsigned short bytes = 0;
 	do {
 		frame++;
@@ -96,21 +99,15 @@ void reverseMP3(string ifN, string ofN) {
 
 		IFSTREAM.seekg(-4, ios::cur);
 		OFSTREAM.seekp(rem);
-		pipe(bytes);
+		pipe(bytes, processFrame);
 	} while (IFSTREAM.tellg() < END);
 	cout << rem << ' ' << firstFrame << endl;
+}
+
+void reverseMP3(string ifN, string ofN) {
+	initVariables(ifN, ofN);
+	processID3();
+	iterateFrames();
 	IFSTREAM.close();
 	OFSTREAM.close();
-}
-
-void ReverseMP3()
-{
-}
-
-void ReverseMP3(std::string s)
-{
-}
-
-void ReverseMP3(std::string i, std::string o)
-{
 }
