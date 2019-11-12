@@ -161,7 +161,6 @@ void func2(const wchar_t *url, const int start = 0, const int end = 10) {
 int main()
 {
 	reverseMP3("C:\\Users\\( USERNAME )\\Music\\Tiimy mono.mp3", "C:\\Users\\( USERNAME )\\Music\\Tiimy mess2.mp3");
-	//reverseMP3("C:\\Users\\( USERNAME )\\Music\\Tiimy mess.mp3", "C:\\Users\\( USERNAME )\\Music\\Tiimy mess2.mp3");
 	//func2(L"https://www.bing.com/search?q=roblox+filetype%3A.zip", 0, 30);
 	return 0;
 }

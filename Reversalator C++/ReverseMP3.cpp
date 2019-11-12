@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
+#include <bitset>
 #include "ReverseMP3.h"
 using namespace std;
 const unsigned short bitRates[] = {
@@ -47,8 +48,41 @@ void pipe(size_t size, void process(char *, size_t) = NULL) {
 	free(b);
 }
 
-void processFrame(char *data, size_t size) {
+struct FrameParams {
+	bool Stereo;
+	unsigned Length;
+	bool Protection;
+	bool Channels[2];
+} frameParams;
 
+void removeCRC(char *pos, const size_t size) {
+	if (pos[0] % 2 == 0) {
+		memmove(pos + 4, pos + 6, size - 4);
+		memset(pos + size - 4, 0, 4);
+		pos[0] |= 1, pos += 2;
+	}
+}
+
+template<const size_t size>
+bitset<size> getBitset(char *data) {
+	bitset<size> bs = bitset<size>();
+	unsigned char ch;
+	for (size_t c = 0; c < size * 8; c++) {
+		ch = (unsigned char)data[c];
+		for (c += 7; c % 8 == 0; c--, ch >>= 1)
+			bs[c] = ch % 2;
+	}
+	return bs;
+}
+
+void processFrame(char *data, const size_t size) {
+
+	char *pos = data;
+	removeCRC(pos, size);
+	auto bitSet = getBitset<size>(data);
+	//char main_data_begin[8] = (char[])data;
+	bool stereo = frameParams.Channels[0] && !frameParams.Channels[1];
+	char main_data_begin = pos[0];
 }
 
 void processID3() {
@@ -78,11 +112,12 @@ void processID3() {
 	IFSTREAM.seekg(START);
 }
 
-void iterateFrames() {
+void iterateFrames(bool reverse = true) {
 	char data[1441];
 	streampos rem = END;
 	unsigned int frame = 0;
 	unsigned short bytes = 0;
+	if (!reverse)OFSTREAM.seekp(START);
 	do {
 		frame++;
 		IFSTREAM.read(data, 4);
@@ -94,11 +129,12 @@ void iterateFrames() {
 		auto br = ((rateInfo + 256) >> 4) - 1;
 		auto sr = ((rateInfo + 256) >> 2) % 4;
 		bool pd = ((rateInfo + 256) >> 1) % 2;
-		rem -= (bytes = 1440 * bitRates
-			[br] / sampleRates[sr] + pd);
+		rem -= (frameParams.Length = bytes = 1440 *
+			bitRates[br] / sampleRates[sr] + pd);
+		memcpy(frameParams.Channels, data + 24, 2);
 
 		IFSTREAM.seekg(-4, ios::cur);
-		OFSTREAM.seekp(rem);
+		if (reverse)OFSTREAM.seekp(rem);
 		pipe(bytes, processFrame);
 	} while (IFSTREAM.tellg() < END);
 	cout << rem << ' ' << firstFrame << endl;
@@ -107,7 +143,7 @@ void iterateFrames() {
 void reverseMP3(string ifN, string ofN) {
 	initVariables(ifN, ofN);
 	processID3();
-	iterateFrames();
+	iterateFrames(false);
 	IFSTREAM.close();
 	OFSTREAM.close();
 }
